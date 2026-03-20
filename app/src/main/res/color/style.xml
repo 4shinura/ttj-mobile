@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Item sélectionné -->
+    <item android:color="@color/light_magenta" android:state_checked="true"/>
+
+    <!-- Item non sélectionné -->
+    <item android:color="@color/white" android:state_checked="false"/>
+
+    <style android:name="CircleImageView">
+        <item android:name="cornerFamily">rounded</item>
+        <item android:name="cornerSize">50%</item>
+    </style>
+</selector>
