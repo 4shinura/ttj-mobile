@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void chargerOffres() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://172.16.4.4:5555/api/") // HTTP car IP locale souvent sans SSL
+                .baseUrl(BuildConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

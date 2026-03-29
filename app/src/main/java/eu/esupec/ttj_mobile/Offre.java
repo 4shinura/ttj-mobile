@@ -5,9 +5,11 @@ import com.google.gson.annotations.SerializedName;
 public class Offre {
     private String titre;
     private String description;
-    @SerializedName("type_contrat")
+
+    @SerializedName("type")
     private String typeContrat;
-    @SerializedName("date_publication")
+
+    @SerializedName("datePublication")
     private String datePublication;
 
     public String getTitre() { return titre; }

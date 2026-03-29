@@ -4,19 +4,26 @@ plugins {
 
 android {
     namespace = "eu.esupec.ttj_mobile"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "eu.esupec.ttj_mobile"
-        minSdk = 26
-        targetSdk = 35
+        minSdk = 36
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true // Active la génération de la classe BuildConfig
+    }
+
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.121:8000/api/\"");
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -48,6 +55,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     // Navigation Component
-    implementation("androidx.navigation:navigation-fragment-ktx:2.8.0")
-    implementation("androidx.navigation:navigation-ui-ktx:2.8.0")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.7")
 }
