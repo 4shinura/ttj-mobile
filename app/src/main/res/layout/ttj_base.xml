@@ -18,6 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/tv_app_title"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -27,18 +28,44 @@
             android:textStyle="bold" />
     </androidx.cardview.widget.CardView>
 
+    <!-- Vue : Liste des offres -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_offres"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="8dp"
+        android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/ttj_navbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ttj_topbar"
         tools:listitem="@layout/api_item_offre" />
+
+    <!-- Vue : Profil / Connexion / Inscription -->
+    <include
+        layout="@layout/layout_profile_login"
+        android:id="@+id/include_login"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/ttj_navbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ttj_topbar" />
+
+    <!-- Vue : Détails Profil -->
+    <include
+        layout="@layout/layout_profile_details"
+        android:id="@+id/include_profile_details"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/ttj_navbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ttj_topbar" />
 
     <!-- Overlay assombrissant -->
     <View
@@ -49,7 +76,7 @@
         android:visibility="gone"
         android:elevation="10dp" />
 
-    <!-- MODAL COLLÉ EN BAS - COINS SUPÉRIEURS ARRONDIS, BAS RECTANGULAIRE -->
+    <!-- MODAL DÉTAILS OFFRE -->
     <LinearLayout
         android:id="@+id/modal_offre"
         android:layout_width="match_parent"
