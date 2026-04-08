@@ -1,20 +1,25 @@
-package eu.esupec.ttj_mobile;
+package eu.esupec.ttj_mobile.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
+import eu.esupec.ttj_mobile.MainActivity;
+import eu.esupec.ttj_mobile.R;
+import eu.esupec.ttj_mobile.entity.Offre;
+
 public class OffreAdapter extends RecyclerView.Adapter<OffreAdapter.OffreViewHolder> {
 
     private List<Offre> offres;
+    private MainActivity activity;
 
-    public OffreAdapter(List<Offre> offres) {
+    public OffreAdapter(List<Offre> offres, MainActivity activity) {
         this.offres = offres;
+        this.activity = activity;
     }
 
     @NonNull
@@ -29,12 +34,15 @@ public class OffreAdapter extends RecyclerView.Adapter<OffreAdapter.OffreViewHol
     public void onBindViewHolder(@NonNull OffreViewHolder holder, int position) {
         Offre offre = offres.get(position);
         holder.tvTitre.setText(offre.getTitre());
-        holder.tvDescription.setText(offre.getDescription());
         holder.tvType.setText(offre.getTypeContrat());
         holder.tvDate.setText(offre.getDatePublication());
+        holder.tvDescription.setText(offre.getDescription());
 
-        // Petite animation lors de l'apparition
-        holder.itemView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), android.R.anim.fade_in));
+        holder.itemView.setOnClickListener(v -> {
+            if (activity != null) {
+                activity.afficherModalOffre(offre);
+            }
+        });
     }
 
     @Override

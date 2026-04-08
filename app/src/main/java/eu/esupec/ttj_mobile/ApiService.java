@@ -1,6 +1,8 @@
 package eu.esupec.ttj_mobile;
 
 import java.util.List;
+
+import eu.esupec.ttj_mobile.entity.Offre;
 import retrofit2.Call;
 import retrofit2.http.GET;
 

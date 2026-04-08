@@ -4,7 +4,7 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@android:drawable/ic_dialog_map"
-        android:title="Accueil" />
+        android:title="Offres" />
 
     <item
         android:id="@+id/nav_candidatures"
@@ -12,18 +12,13 @@
         android:title="Candidatures" />
 
     <item
-        android:id="@+id/nav_profile"
-        android:icon="@drawable/icon_profile"
-        android:title="Mon profil" />
-
-    <item
         android:id="@+id/nav_messages"
         android:icon="@android:drawable/ic_dialog_email"
         android:title="Messages" />
 
     <item
-        android:id="@+id/nav_logout"
-        android:icon="@android:drawable/ic_lock_lock"
-        android:title="Déconnexion" />
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/icon_profile"
+        android:title="Mon profil" />
 
 </menu>
