@@ -43,6 +43,21 @@
         app:layout_constraintTop_toBottomOf="@id/ttj_topbar"
         tools:listitem="@layout/api_item_offre" />
 
+    <!-- Vue : Liste des candidatures -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_candidatures"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/ttj_navbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ttj_topbar"
+        tools:listitem="@layout/api_item_candidature" />
+
     <!-- Vue : Profil / Connexion / Inscription -->
     <include
         layout="@layout/layout_profile_login"
@@ -182,6 +197,105 @@
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/navItem"
             android:text="POSTULER"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+
+    <!-- MODAL DÉTAILS CANDIDATURE -->
+    <LinearLayout
+        android:id="@+id/modal_candidature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/modal_bg"
+        android:elevation="15dp"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/modal_cand_titre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/btn_close_modal_cand"
+                android:textColor="@color/navItem"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="Titre de l'offre" />
+            <ImageButton
+                android:id="@+id/btn_close_modal_cand"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentEnd="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="#888888" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/modal_cand_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="#888888"
+            android:textSize="14sp"
+            tools:text="Postulé le : 10/02/2026" />
+
+        <TextView
+            android:id="@+id/modal_cand_statut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#E3F2FD"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:textColor="#1976D2"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="STATUT : EN ATTENTE" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="16dp"
+            android:background="#EEEEEE" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description de l'offre :"
+            android:textStyle="bold"
+            android:textColor="@color/navItem"
+            android:textSize="16sp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:maxHeight="200dp">
+            <TextView
+                android:id="@+id/modal_cand_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="4dp"
+                android:textColor="#444444"
+                android:textSize="15sp"
+                tools:text="Description complète de l'offre..." />
+        </ScrollView>
+
+        <Button
+            android:id="@+id/modal_cand_btn_delete"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#D32F2F"
+            android:text="SUPPRIMER LA CANDIDATURE"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             app:cornerRadius="12dp" />
