@@ -1,4 +1,4 @@
-package eu.esupec.ttj_mobile;
+package eu.esupec.ttj_mobile; // 2026
 
 import android.os.Bundle;
 import android.util.Log;
