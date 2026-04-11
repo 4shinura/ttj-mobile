@@ -22,7 +22,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://192.168.1.23:5555/api/\"");
+            buildConfigField("String", "BASE_URL", "\"https://ttj-api.vltmc.fr/api/\"");
         }
         release {
             isMinifyEnabled = false
