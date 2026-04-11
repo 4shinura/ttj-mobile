@@ -35,6 +35,16 @@
         android:textColor="#666666"
         android:textSize="16sp" />
 
+    <TextView
+        android:id="@+id/tv_profile_statut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Statut: EN ATTENTE"
+        android:textColor="#1976D2"
+        android:textSize="14sp"
+        android:textStyle="italic" />
+
 
     <View
         android:layout_width="match_parent"

@@ -58,6 +58,38 @@
         app:layout_constraintTop_toBottomOf="@id/ttj_topbar"
         tools:listitem="@layout/api_item_candidature" />
 
+    <!-- Vue : Liste des conversations (Messages) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_messages"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/ttj_navbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ttj_topbar">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_correspondants"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_correspondant" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_new_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="24dp"
+            android:src="@android:drawable/ic_input_add"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:backgroundTint="@color/navItem"
+            app:tint="#FFFFFF" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <!-- Vue : Profil / Connexion / Inscription -->
     <include
         layout="@layout/layout_profile_login"
@@ -74,6 +106,18 @@
     <include
         layout="@layout/layout_profile_details"
         android:id="@+id/include_profile_details"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/ttj_navbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ttj_topbar" />
+
+    <!-- Vue : Conversation (Thread) -->
+    <include
+        layout="@layout/layout_conversation"
+        android:id="@+id/layout_conversation_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"

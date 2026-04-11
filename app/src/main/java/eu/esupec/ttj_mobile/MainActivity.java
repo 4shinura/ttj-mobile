@@ -22,17 +22,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import eu.esupec.ttj_mobile.adapter.CandidatureAdapter;
+import eu.esupec.ttj_mobile.adapter.CorrespondantAdapter;
+import eu.esupec.ttj_mobile.adapter.MessageAdapter;
 import eu.esupec.ttj_mobile.adapter.OffreAdapter;
 import eu.esupec.ttj_mobile.api.ApiClient;
 import eu.esupec.ttj_mobile.api.ApiService;
 import eu.esupec.ttj_mobile.entity.Candidature;
+import eu.esupec.ttj_mobile.entity.ConversationResponse;
 import eu.esupec.ttj_mobile.entity.LoginRequest;
 import eu.esupec.ttj_mobile.entity.LoginResponse;
+import eu.esupec.ttj_mobile.entity.Message;
 import eu.esupec.ttj_mobile.entity.Offre;
 import eu.esupec.ttj_mobile.entity.RegisterRequest;
 import eu.esupec.ttj_mobile.entity.User;
@@ -43,16 +48,20 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView, rvCandidatures;
+    private RecyclerView recyclerView, rvCandidatures, rvCorrespondants, rvMessages;
     private OffreAdapter adapter;
     private CandidatureAdapter candidatureAdapter;
+    private CorrespondantAdapter correspondantAdapter;
+    private MessageAdapter messageAdapter;
     private View modalOffre, modalCandidature;
     private View modalOverlay;
-    private View layoutLogin;
+    private View layoutLogin, layoutMessages, layoutConversation;
     private View layoutProfileDetails;
     private SessionManager sessionManager;
-    private TextView tvAppTitle;
-    private List<Candidature> userCandidatures = new java.util.ArrayList<>();
+    private TextView tvAppTitle, tvConvName;
+    private List<Candidature> userCandidatures = new ArrayList<>();
+    private List<User> allUsers = new ArrayList<>(); // Pour la sélection lors d'un nouveau message
+    private int selectedCorrespondantId = -1;
 
     // Éléments Auth
     private TextView tvAuthTitle, tvSwitchAuth;
@@ -75,9 +84,18 @@ public class MainActivity extends AppCompatActivity {
         modalOverlay = findViewById(R.id.modal_overlay);
         layoutLogin = findViewById(R.id.include_login);
         layoutProfileDetails = findViewById(R.id.include_profile_details);
+        layoutMessages = findViewById(R.id.layout_messages);
+        layoutConversation = findViewById(R.id.layout_conversation_container);
         recyclerView = findViewById(R.id.rv_offres);
         rvCandidatures = findViewById(R.id.rv_candidatures);
+        rvCorrespondants = findViewById(R.id.rv_correspondants);
+        rvMessages = findViewById(R.id.rv_messages);
         tvAppTitle = findViewById(R.id.tv_app_title);
+        tvConvName = findViewById(R.id.tv_conv_name);
+
+        findViewById(R.id.btn_back_conv).setOnClickListener(v -> hideConversation());
+        findViewById(R.id.btn_send_message).setOnClickListener(v -> sendMessage());
+        findViewById(R.id.fab_new_message).setOnClickListener(v -> showUserSelection());
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -93,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_candidatures) {
                 showCandidatures();
+                return true;
+            } else if (id == R.id.nav_messages) {
+                showMessages();
                 return true;
             } else if (id == R.id.nav_profile) {
                 showProfileOrLogin();
@@ -127,6 +148,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void toggleAuthMode() {
         isLoginMode = !isLoginMode;
+        // Vider tous les champs à chaque switch
+        etEmail.setText("");
+        etPassword.setText("");
+        etFirstname.setText("");
+        etLastname.setText("");
+
         if (isLoginMode) {
             tvAuthTitle.setText("Connexion");
             layoutRegisterFields.setVisibility(View.GONE);
@@ -144,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
         tvAppTitle.setText("Trouve Ton Job");
         recyclerView.setVisibility(View.VISIBLE);
         rvCandidatures.setVisibility(View.GONE);
+        layoutMessages.setVisibility(View.GONE);
+        layoutConversation.setVisibility(View.GONE);
         layoutLogin.setVisibility(View.GONE);
         layoutProfileDetails.setVisibility(View.GONE);
         chargerOffres();
@@ -160,14 +189,36 @@ public class MainActivity extends AppCompatActivity {
         tvAppTitle.setText("Mes Candidatures");
         recyclerView.setVisibility(View.GONE);
         rvCandidatures.setVisibility(View.VISIBLE);
+        layoutMessages.setVisibility(View.GONE);
+        layoutConversation.setVisibility(View.GONE);
         layoutLogin.setVisibility(View.GONE);
         layoutProfileDetails.setVisibility(View.GONE);
         chargerCandidatures();
     }
 
+    private void showMessages() {
+        if (!sessionManager.isLoggedIn()) {
+            Toast.makeText(this, "Connectez-vous pour accéder à la messagerie", Toast.LENGTH_SHORT).show();
+            BottomNavigationView bottomNav = findViewById(R.id.ttj_navbar);
+            bottomNav.setSelectedItemId(R.id.nav_profile);
+            showProfileOrLogin();
+            return;
+        }
+        tvAppTitle.setText("Messages");
+        recyclerView.setVisibility(View.GONE);
+        rvCandidatures.setVisibility(View.GONE);
+        layoutMessages.setVisibility(View.VISIBLE);
+        layoutConversation.setVisibility(View.GONE);
+        layoutLogin.setVisibility(View.GONE);
+        layoutProfileDetails.setVisibility(View.GONE);
+        chargerCorrespondants();
+    }
+
     private void showProfileOrLogin() {
         recyclerView.setVisibility(View.GONE);
         rvCandidatures.setVisibility(View.GONE);
+        layoutMessages.setVisibility(View.GONE);
+        layoutConversation.setVisibility(View.GONE);
         if (sessionManager.isLoggedIn()) {
             tvAppTitle.setText("Mon Profil");
             layoutLogin.setVisibility(View.GONE);
@@ -265,10 +316,16 @@ public class MainActivity extends AppCompatActivity {
     private void updateProfileUI(User user) {
         ((TextView)findViewById(R.id.tv_profile_name)).setText(user.getPrenom() + " " + user.getNom());
         ((TextView)findViewById(R.id.tv_profile_email)).setText(user.getEmail());
+        ((TextView)findViewById(R.id.tv_profile_statut)).setText("Statut: " + (user.getStatut() != null ? user.getStatut().toUpperCase() : "NON DÉFINI"));
     }
 
     private void performLogout() {
         sessionManager.logout();
+        // Vider les champs auth
+        if (etEmail != null) etEmail.setText("");
+        if (etPassword != null) etPassword.setText("");
+        if (etFirstname != null) etFirstname.setText("");
+        if (etLastname != null) etLastname.setText("");
         Toast.makeText(this, "Déconnecté", Toast.LENGTH_SHORT).show();
         showProfileOrLogin();
     }
@@ -385,6 +442,141 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Annuler", null)
                 .show();
+    }
+
+    private void chargerCorrespondants() {
+        String token = new SessionManager(this).getToken();
+        Log.d("DEBUG", "Token actuel : " + token);
+        ApiClient.getService(this).getCorrespondants().enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<User>> call, @NonNull Response<List<User>> response) {
+                Log.d("DEBUG", "Code HTTP correspondants : " + response.code());
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("DEBUG", "Nombre de correspondants reçus : " + response.body().size());
+                    correspondantAdapter = new CorrespondantAdapter(response.body(), user -> {
+                        showConversation(user);
+                    });
+                    rvCorrespondants.setAdapter(correspondantAdapter);
+                } else {
+                    Log.e("DEBUG", "Réponse non successful ou body null, code : " + response.code());
+                    try {
+                        Log.e("DEBUG", "Error body : " + response.errorBody().string());
+                    } catch (Exception e) {
+                        Log.e("DEBUG", "Impossible de lire errorBody");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<User>> call, @NonNull Throwable t) {
+                Log.e("DEBUG", "onFailure correspondants : " + t.getMessage());
+                Toast.makeText(MainActivity.this, "Erreur chargement messages", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showConversation(User correspondant) {
+        selectedCorrespondantId = correspondant.getId();
+        tvConvName.setText(correspondant.getPrenom() + " " + correspondant.getNom());
+        layoutConversation.setVisibility(View.VISIBLE);
+        chargerMessages(selectedCorrespondantId);
+    }
+
+    private void hideConversation() {
+        layoutConversation.setVisibility(View.GONE);
+        selectedCorrespondantId = -1;
+        chargerCorrespondants();
+    }
+
+    private void chargerMessages(int correspondantId) {
+        ApiClient.getService(this).getConversation(correspondantId).enqueue(new Callback<ConversationResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ConversationResponse> call, @NonNull Response<ConversationResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    User me = sessionManager.getUser();
+                    if (me != null) {
+                        List<Message> messages = response.body().getMessages(); // ← ici
+                        messageAdapter = new MessageAdapter(messages, me.getId());
+                        rvMessages.setAdapter(messageAdapter);
+                        if (!messages.isEmpty()) {
+                            rvMessages.scrollToPosition(messages.size() - 1);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ConversationResponse> call, @NonNull Throwable t) {
+                Toast.makeText(MainActivity.this, "Erreur chargement conversation", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void sendMessage() {
+        android.widget.EditText etInput = layoutConversation.findViewById(R.id.et_message_input);
+        if (etInput == null) return;
+        
+        String content = etInput.getText().toString().trim();
+        if (content.isEmpty() || selectedCorrespondantId == -1) return;
+
+        Map<String, String> body = new HashMap<>();
+        body.put("contenu", content);
+
+        android.widget.EditText finalEtInput = etInput;
+        ApiClient.getService(this).sendMessage(selectedCorrespondantId, body).enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
+                if (response.isSuccessful()) {
+                    finalEtInput.setText("");
+                    chargerMessages(selectedCorrespondantId);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Message> call, @NonNull Throwable t) {
+                Toast.makeText(MainActivity.this, "Erreur envoi message", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showUserSelection() {
+        ApiClient.getService(this).getUtilisateurs().enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<User>> call, @NonNull Response<List<User>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    User me = sessionManager.getUser();
+                    List<User> users = new ArrayList<>();
+                    for (User u : response.body()) {
+                        if (me == null || u.getId() != me.getId()) {
+                            users.add(u); // on s'exclut de la liste
+                        }
+                    }
+
+                    if (users.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "Aucun utilisateur disponible", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String[] userNames = new String[users.size()];
+                    for (int i = 0; i < users.size(); i++) {
+                        User u = users.get(i);
+                        userNames[i] = u.getPrenom() + " " + u.getNom() + " (" + u.getEmail() + ")";
+                    }
+                    List<User> finalUsers = users;
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Nouveau message à :")
+                            .setItems(userNames, (dialog, which) -> showConversation(finalUsers.get(which)))
+                            .show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Aucun utilisateur disponible", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<User>> call, @NonNull Throwable t) {
+                Toast.makeText(MainActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void chargerOffres() {
